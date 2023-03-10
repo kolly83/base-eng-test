@@ -8,7 +8,7 @@ High level objectives:
 - Write the script in Python version 3.8 and above.
 - Configure a pipeline in CircleCI to test and deploy your code.
 - Authenticate with AWS (Applicants choice)
-- Provision S3 bucket as destination.
+- Provision S3 buckets as source & destination.
 - Create IAM dependencies for Lambda function
 - Provision and deploy your code to Lambda functions (Invocation of function is applicants choice)
 - Provision a AWS CloudWatch log group to monitor and log the lambda function actions. 
