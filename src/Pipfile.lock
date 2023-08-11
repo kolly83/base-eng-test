@@ -1,0 +1,45 @@
+{
+    "_meta": {
+        "hash": {
+            "sha256": "1d9fa49c50805d175baf05f185532a2cceab5611b313009b7f2b1b4675d0a820"
+        },
+        "pipfile-spec": 6,
+        "requires": {
+            "python_version": "3.10"
+        },
+        "sources": [
+            {
+                "name": "pypi",
+                "url": "https://pypi.org/simple",
+                "verify_ssl": true
+            }
+        ]
+    },
+    "default": {
+        "aws-lambda-powertools": {
+            "hashes": [
+                "sha256:0fd535251454b1bd68dbff65e3ed56aa567f3841011e2afbd557b125596a6814",
+                "sha256:eae1f1c961893dab5d1e75ffb44d9b58f6426cb148aa39413b04cf36ae46fbe3"
+            ],
+            "index": "pypi",
+            "version": "==2.22.0"
+        },
+        "jmespath": {
+            "hashes": [
+                "sha256:02e2e4cc71b5bcab88332eebf907519190dd9e6e82107fa7f83b1003a6252980",
+                "sha256:90261b206d6defd58fdd5e85f478bf633a2901798906be2ad389150c5c60edbe"
+            ],
+            "index": "pypi",
+            "version": "==1.0.1"
+        },
+        "typing-extensions": {
+            "hashes": [
+                "sha256:440d5dd3af93b060174bf433bccd69b0babc3b15b1a8dca43789fd7f61514b36",
+                "sha256:b75ddc264f0ba5615db7ba217daeb99701ad295353c45f9e95963337ceeeffb2"
+            ],
+            "markers": "python_version >= '3.7'",
+            "version": "==4.7.1"
+        }
+    },
+    "develop": {}
+}
