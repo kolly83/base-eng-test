@@ -1,8 +1,13 @@
 # Cloud Systems Engineering Tests
 
+#######################################################
+Please fork this repo and begin your work locally. 
+#######################################################
+
 ## Scope of Work
 Deploy a simple python application to AWS that responds to HTTP POST requests and returns a JSON response.
 All resources need to be provisioned using Terraform and state managed through Terraform Cloud.
+
 
 High level objectives: 
 - Configure a pipeline in Github actions and deploy the packaged python code. (CircleCi can be used if Github actions is not preferred)
