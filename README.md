@@ -1,8 +1,7 @@
 # Cloud Systems Engineering Tests
 
-#######################################################
-Please fork this repo and begin your work locally. 
-#######################################################
+#### Please fork this repo and begin your work locally. 
+
 
 ## Scope of Work
 Deploy a simple python application to AWS that responds to HTTP POST requests and returns a JSON response.
