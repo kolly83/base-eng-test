@@ -61,3 +61,15 @@ jobs:
           git push origin main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify ZIP file exists
+        run: |
+          echo "Current directory: $(pwd)"
+          ls -l
+          echo "Full path to ZIP file:"
+          echo "$(pwd)/lambda_function.zip"
+          echo "Contents of package:"
+          unzip -l lambda_function.zip          
+  
+          
+  
