@@ -86,4 +86,11 @@ jobs:
         run: terraform validate -no-color -compact-warnings
         working-directory: infrastructure/
   
-  
+      - name: Print working directory
+        run: pwd
+        working-directory: infrastructure/
+
+      - name: List files
+        run: ls -l
+        working-directory: infrastructure/
+
