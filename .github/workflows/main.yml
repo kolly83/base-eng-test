@@ -27,6 +27,9 @@ jobs:
           pip install pipenv
           pipenv install --dev
 
+      - name: Run unit tests
+        run: pipenv run pytest tests/unit_test.py
+      
       - name: Package application
         run: |
           mkdir -p package
