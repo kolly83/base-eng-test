@@ -27,6 +27,7 @@ def lambda_handler(event: dict, context: LambdaContext):
         "How old are you?",
         "Where are you from?",
         "What is your favourite Colour?"
+        "What is your favourite pet?"
         ]
 
     json_event = json.loads(event['body'])
@@ -40,7 +41,7 @@ def lambda_handler(event: dict, context: LambdaContext):
                 "headers": {
                     "Content-Type": "application/json"
                 },
-                "body": "I am fine, thank you!"
+                "body": json.dumps("I am fine, thank you!")
             }
             logger.info(response)
             return response
@@ -50,7 +51,7 @@ def lambda_handler(event: dict, context: LambdaContext):
                 "headers": {
                     "Content-Type": "application/json"
                 },
-                "body": "My name is Lambda!"
+                "body": json.dumps("My name is Lambda!")
             }
             logger.info(response)
             return response
@@ -60,7 +61,7 @@ def lambda_handler(event: dict, context: LambdaContext):
                 "headers": {
                     "Content-Type": "application/json"
                 },
-                "body": "I am 00001 year old!"
+                "body": json.dumps("I am 00001 year old!")
             }
             logger.info(response)
             return response
@@ -70,7 +71,7 @@ def lambda_handler(event: dict, context: LambdaContext):
                 "headers": {
                     "Content-Type": "application/json"
                 },
-                "body": "I am from the Amazonian Jungles of Seattle, Washington"
+                "body": json.dumps("I am from the Amazonian Jungles of Seattle, Washington")
             }
             logger.info(response)
             return response
@@ -80,7 +81,17 @@ def lambda_handler(event: dict, context: LambdaContext):
                 "headers": {
                     "Content-Type": "application/json"
                 },
-                "body": "My favourite colour is Yellow"
+                "body": json.dumps("My favourite colour is Yellow")
+            }
+            logger.info(response)
+            return response
+        case "What is your favourite pet?":
+            response = {
+                "statusCode": 200,
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "body": json.dumps("My favourite pet is tiger.")
             }
             logger.info(response)
             return response
@@ -90,8 +101,10 @@ def lambda_handler(event: dict, context: LambdaContext):
                 "headers": {
                     "Content-Type": "application/json"
                 },
-                "body": "I'm sorry I don't understand the question.",
-                "acceptedOptions": questions
+                "body": json.dumps({
+                    "error": "I'm sorry I don't understand the question.",
+                    "acceptedOptions": questions
+                })
             }
             logger.info(response)
             return response
