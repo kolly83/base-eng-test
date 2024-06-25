@@ -37,3 +37,27 @@ jobs:
           cd ..
         shell: /usr/bin/bash -e {0}  
       
+      - name: Configure Git
+        run: |
+          git config --global user.email "kolly22@gmail.com"
+          git config --global user.name "Gabor Keller"
+
+      - name: Stash local changes
+        run: git stash --include-untracked
+
+      - name: Pull latest changes
+        run: git pull origin main
+
+      - name: Apply stashed changes
+        run: git stash pop || true        
+
+      - name: Add ZIP to repository
+        run: |
+          git add lambda_function.zip
+          git commit -m "Add lambda_function.zip to repository"
+
+      - name: Push changes
+        run: |
+          git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
