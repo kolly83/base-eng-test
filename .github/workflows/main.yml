@@ -27,6 +27,12 @@ jobs:
           pip install pipenv
           pipenv install --dev
 
+      - name: Create pytest.ini
+        run: |
+          echo "[pytest]" > pytest.ini
+          echo "markers =" >> pytest.ini
+          echo "    integration: mark a test as an integration test." >> pytest.ini
+
       - name: Run unit tests
         run: pipenv run pytest tests/unit_test.py
       
