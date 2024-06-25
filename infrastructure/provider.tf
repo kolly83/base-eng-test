@@ -1,4 +1,13 @@
 terraform {
+
+  backend "remote" {
+    organization = "Base-Eng-Test"
+
+    workspaces {
+      name = "base-eng-test"
+    }
+  }
+
   required_version = ">= 1.5.3"
 
   required_providers {
