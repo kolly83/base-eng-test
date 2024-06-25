@@ -94,3 +94,40 @@ jobs:
         run: ls -l
         working-directory: infrastructure/
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-2
+
+      - name: List All APIs for Debugging
+        run: aws apigatewayv2 get-apis --region eu-west-2
+
+      - name: Get API Gateway Invoke URL
+        id: get_api_url
+        run: |
+          API_NAME="event-handler-${{ env.ENVIRONMENT }}"
+          API_ID=$(aws apigatewayv2 get-apis --query "Items[?Name=='$API_NAME'].ApiId" --output text --region eu-west-2)
+          echo "API_ID: $API_ID"
+          if [ -z "$API_ID" ]; then
+            echo "API not found. Exiting."
+            exit 1
+          fi
+          STAGE_NAME=$(aws apigatewayv2 get-stages --api-id $API_ID --query "Items[0].StageName" --output text --region eu-west-2)
+          echo "STAGE_NAME: $STAGE_NAME"
+          API_URL="https://${API_ID}.execute-api.eu-west-2.amazonaws.com/${STAGE_NAME}"
+          echo "API_GATEWAY_URL=${API_URL}" >> $GITHUB_ENV    
+
+      - name: Verify Environment Variable
+        run: echo ${{ env.API_GATEWAY_URL }}
+
+      - name: Test API with curl
+        run: |
+          curl -X POST ${{ env.API_GATEWAY_URL }}/event-handler -H "Content-Type: application/json" -d '{"question": "How are you?"}' -o /tmp/response.json
+          echo "Response from API:"
+          cat /tmp/response.json
+          if ! grep -q "I am fine, thank you!" /tmp/response.json; then
+            echo "API test failed"
+            exit 1
+          fi
