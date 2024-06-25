@@ -15,13 +15,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
         with:
-          terraform_version: 1.5.3
-          terraform_wrapper: True
-          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-      - name: Terraform Init
-        run: terraform init
-      - name: Terraform Validate
-        run: terraform validate -no-color
+          python-version: '3.10'
+
+      - name: Install pipenv and dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install pipenv
+          pipenv install --dev
