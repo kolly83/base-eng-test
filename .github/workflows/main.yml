@@ -1,0 +1,142 @@
+name: Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    env:
+      TF_IN_AUTOMATION: true
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      - name: Install pipenv and dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install pipenv
+          pipenv install --dev
+
+      - name: Create pytest.ini
+        run: |
+          echo "[pytest]" > pytest.ini
+          echo "markers =" >> pytest.ini
+          echo "    integration: mark a test as an integration test." >> pytest.ini
+
+      - name: Run unit tests
+        run: pipenv run pytest tests/unit_test.py
+      
+      - name: Package application
+        run: |
+          mkdir -p package
+          cp -r src/* package/
+          pip install -r src/requirements.txt -t package/
+          cd package
+          zip -r ../lambda_function.zip .
+          cd ..
+        shell: /usr/bin/bash -e {0}  
+      
+      - name: Configure Git
+        run: |
+          git config --global user.email "kolly22@gmail.com"
+          git config --global user.name "Gabor Keller"
+
+      - name: Stash local changes
+        run: git stash --include-untracked
+
+      - name: Pull latest changes
+        run: git pull origin main
+
+      - name: Apply stashed changes
+        run: git stash pop || true        
+
+      - name: Add ZIP to repository
+        run: |
+          git add lambda_function.zip
+          git commit -m "Add lambda_function.zip to repository"
+
+      - name: Push changes
+        run: |
+          git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify ZIP file exists
+        run: |
+          echo "Current directory: $(pwd)"
+          ls -l
+          echo "Full path to ZIP file:"
+          echo "$(pwd)/lambda_function.zip"
+          echo "Contents of package:"
+          unzip -l lambda_function.zip          
+  
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.3
+          terraform_wrapper: true
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+  
+      - name: Terraform Init
+        run: terraform init -reconfigure -backend-config="token=${{ secrets.TF_API_TOKEN }}" -compact-warnings
+        working-directory: infrastructure/
+  
+      - name: Terraform Validate
+        run: terraform validate -no-color -compact-warnings
+        working-directory: infrastructure/
+  
+      - name: Print working directory
+        run: pwd
+        working-directory: infrastructure/
+
+      - name: List files
+        run: ls -l
+        working-directory: infrastructure/
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-2
+
+      - name: List All APIs for Debugging
+        run: aws apigatewayv2 get-apis --region eu-west-2
+
+      - name: Get API Gateway Invoke URL
+        id: get_api_url
+        run: |
+          API_NAME="event-handler-${{ env.ENVIRONMENT }}"
+          API_ID=$(aws apigatewayv2 get-apis --query "Items[?Name=='$API_NAME'].ApiId" --output text --region eu-west-2)
+          echo "API_ID: $API_ID"
+          if [ -z "$API_ID" ]; then
+            echo "API not found. Exiting."
+            exit 1
+          fi
+          STAGE_NAME=$(aws apigatewayv2 get-stages --api-id $API_ID --query "Items[0].StageName" --output text --region eu-west-2)
+          echo "STAGE_NAME: $STAGE_NAME"
+          API_URL="https://${API_ID}.execute-api.eu-west-2.amazonaws.com/${STAGE_NAME}"
+          echo "API_GATEWAY_URL=${API_URL}" >> $GITHUB_ENV    
+
+      - name: Verify Environment Variable
+        run: echo ${{ env.API_GATEWAY_URL }}
+
+      - name: Test API with curl
+        run: |
+          curl -X POST ${{ env.API_GATEWAY_URL }}/event-handler -H "Content-Type: application/json" -d '{"question": "How are you?"}' -o /tmp/response.json
+          echo "Response from API:"
+          cat /tmp/response.json
+          if ! grep -q "I am fine, thank you!" /tmp/response.json; then
+            echo "API test failed"
+            exit 1
+          fi

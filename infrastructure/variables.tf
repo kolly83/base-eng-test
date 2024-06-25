@@ -3,6 +3,18 @@ variable "region" {
   type        = string
 }
 
+variable "environment" {
+  description = "The deployment environment (e.g., dev, prod)."
+  type        = string
+  default     = "dev"
+}
+
+variable "filepath" {
+  description = "Path to the function's deployment package within the local filesystem"
+  type        = string
+  default     = "../package/lambda_function.zip" # Adjusted default path
+}
+
 variable "package_type" {
   description = "The package type (Zip or Image) to use for this function."
   type        = string
@@ -53,4 +65,16 @@ variable "log_level" {
   description = "The log level for the function."
   type        = string
   default     = "INFO"
+}
+
+variable "AWS_ACCESS_KEY_ID" {
+  description = "The AWS access key ID"
+  type        = string
+  sensitive   = true
+}
+
+variable "AWS_SECRET_ACCESS_KEY" {
+  description = "The AWS secret access key"
+  type        = string
+  sensitive   = true
 }
